@@ -335,11 +335,15 @@ async function _genArr() {
 }
 
 async function _quicksort() {
-	await sv.quickSort()
+	if (arr.length > 0) {
+		await sv.quickSort()
+	}
 }
 
 async function _selectionSort() {
-	await sv.selectionSort()
+	if (arr.length > 0) {
+		await sv.selectionSort()
+	}
 }
 
 const genArr = lock(_genArr)
