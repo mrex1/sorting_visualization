@@ -50,14 +50,16 @@ class screen{
 		})
 	}
 	
-	_boomAnim(t, currentState){
-		let {radius} = currentState
-		if (t === 1) {
-			radius *= (t / 10)
-		} else {
-			radius = radius * t / (t - 1)
+	_boomAnim({start, end, step}) {
+		return (t, currentState) => {
+			let {radius} = currentState
+			if (t === start) {
+				radius *= (t / end)
+			} else {
+				radius = radius * t / (t - step)
+			}
+			return {radius}
 		}
-		return {radius}
 	}
 	
 	_lightUpAnim(color){
@@ -70,15 +72,14 @@ class screen{
 	
 	async createNode(coord, text, radius){
 		this.nodes.push(new node(coord, text, radius))
+		const start = 1
+		const end = 10
+		const step = 1
 		const createAnim = [{
 			id: this.nodes.length - 1,
-			anim: this._boomAnim
+			anim: this._boomAnim({start, end, step})
 		}]
-		await this.showAnimate(createAnim,{
-			start: 1,
-			end: 10,
-			step: 1
-		})
+		await this.showAnimate(createAnim,{start, end, step})
 	}
 	
 	async lightUpNode(id, rgb) {
@@ -97,8 +98,13 @@ class screen{
 		const ctx = this.canvas.getContext('2d')
 		ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
 	}
+
+	reset() {
+		this.clearScreen()
+		this.nodes = []
+	}
 	
-	render(){
+	render() {
 		const ctx = this.canvas.getContext('2d')
 		this.clearScreen()
 		for(let n of this.nodes){
@@ -112,8 +118,6 @@ class screen{
 	}
 	
 	async showAnimate(animCollection, timeFrame){
-		this.render()
-		await this._sleep(1)
 		const {start, end, step} = timeFrame
 		for(let t=start; t<=end; t+=step){
 			for(let anim of animCollection){
@@ -201,17 +205,21 @@ class SortVisualiser {
 
 	async _compare(i, j) {
 		let animation = []
-		const compareAnim = (t, currentState) => {
+		const start = 1
+		const end = 10
+		const step = 1
+		const compareAnim = ({start, end, step}) => (t, currentState) => {
 			const {coord, color} = currentState
 			let nextCoord = coord
-			if (t <= 5) {
-				nextCoord.y-=2
+			const range = end - start + step
+			if (t <= range / 2) {
+				nextCoord.y -= step / range * 200
 			} else {
-				nextCoord.y+=2
+				nextCoord.y += step / range * 200
 			}
 			const rgb = color.split(',').slice(0, 3).join(',')
 			const a = color.split(',')[3].replace(/[, )]/g, '')
-			const newa = t === 0.1 ? (a * t / 10) : (a * (t / (t - 0.1)))
+			const newa = t === start ? (a * t / end) : (a * (t / (t - step)))
 			return {
 				color: rgb + `, ${newa})`,
 				coord: nextCoord
@@ -220,20 +228,16 @@ class SortVisualiser {
 		animation.push(
 			{
 				id: i,
-				anim: compareAnim
+				anim: compareAnim({start, end, step})
 			}
 		)
 		animation.push(
 			{
 				id: j,
-				anim: compareAnim
+				anim: compareAnim({start, end, step})
 			}
 		)
-		await myscreen.showAnimate(animation, {
-			start: 0.1,
-			end: 10,
-			step: 0.1
-		})
+		await myscreen.showAnimate(animation, {start, end, step})
 		return myscreen.nodes[i].text > myscreen.nodes[j].text
 	}
 		
@@ -293,18 +297,51 @@ class SortVisualiser {
 	}
 }
 
+let locked = false
+let arr = []
+let sv
+const r = 40
+const numOfNodes = 10
 
+function disableBtn(on) {
+	document.querySelectorAll('button').forEach(
+		(b) => {
+			b.disabled = on
+		}
+	)
+}
 
-async function main () {
-	const r = 40
-	const numOfNodes = 10
-	const arr = []
+function lock(f) {
+	return async () => {
+		if (locked) {
+			return
+		}
+		locked = true
+		disableBtn(locked)
+		await f()
+		locked = false
+		disableBtn(locked)
+	}
+}
+
+async function _genArr() {
+	myscreen.reset()
+	arr = []
 	for(let i = 0 ; i < numOfNodes ; i++){
 		arr.push(parseInt(Math.random() * 200))
 	}
-	const sv = new SortVisualiser(arr, r)
+	sv = new SortVisualiser(arr, r)
 	await sv.createNodes()
+}
+
+async function _quicksort() {
 	await sv.quickSort()
 }
 
-main()
+async function _selectionSort() {
+	await sv.selectionSort()
+}
+
+const genArr = lock(_genArr)
+const quicksort = lock(_quicksort)
+const selectionSort = lock(_selectionSort)
