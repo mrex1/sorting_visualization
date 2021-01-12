@@ -37,7 +37,7 @@ class node{
 	}
 }
 
-class screen{
+class Myscreen{
 	constructor(dimensions){
 		this.canvas = document.querySelector('canvas#screen')
 		this.dimensions = dimensions
@@ -129,13 +129,11 @@ class screen{
 	}
 }
 
-const myscreen = new screen()
-
-
 class SortVisualiser {
-	constructor (arr, radius) {
+	constructor (arr, radius, screen) {
 		this.arr = arr
 		this.radius = radius
+		this.screen = screen
 	}
 	
 	_rotate(t, coord, center) {
@@ -166,8 +164,8 @@ class SortVisualiser {
 	}
 
 	async _swap (idA, idB) {
-		let coordA = myscreen.nodes[idA].coord
-		let coordB = myscreen.nodes[idB].coord
+		let coordA = this.screen.nodes[idA].coord
+		let coordB = this.screen.nodes[idB].coord
 		let center = {}
 		let animation = []
 		for (let dimension in coordA) {
@@ -193,14 +191,14 @@ class SortVisualiser {
 				anim: swapAnim
 			}
 		)
-		await myscreen.showAnimate(animation, {
+		await this.screen.showAnimate(animation, {
 			start: 0,
 			end: 180,
 			step: 5
 		})
-		let temp = myscreen.nodes[idA]
-		myscreen.nodes[idA] = myscreen.nodes[idB]
-		myscreen.nodes[idB] = temp
+		let temp = this.screen.nodes[idA]
+		this.screen.nodes[idA] = this.screen.nodes[idB]
+		this.screen.nodes[idB] = temp
 	}
 
 	async _compare(i, j) {
@@ -237,8 +235,8 @@ class SortVisualiser {
 				anim: compareAnim({start, end, step})
 			}
 		)
-		await myscreen.showAnimate(animation, {start, end, step})
-		return myscreen.nodes[i].text > myscreen.nodes[j].text
+		await this.screen.showAnimate(animation, {start, end, step})
+		return this.screen.nodes[i].text > this.screen.nodes[j].text
 	}
 		
 	async createNodes () {
@@ -250,7 +248,7 @@ class SortVisualiser {
 			let ele = arr[i]
 			let x = radius + 2 * i * radius + lineWidth * 2 * i + leftPadding
 			let y = 15 * radius
-			await myscreen.createNode({x ,y}, ele, radius)
+			await this.screen.createNode({x ,y}, ele, radius)
 		}
 	}
 	
@@ -295,11 +293,16 @@ class SortVisualiser {
 		await this.quickSort(start, pivot - 1)
 		await this.quickSort(pivot + 1, end)
 	}
+
+	reset() {
+		this.screen.reset()
+	}
 }
 
 let locked = false
 let arr = []
 let sv
+let myscreen = new Myscreen()
 const r = 40
 const numOfNodes = 10
 
@@ -330,7 +333,7 @@ async function _genArr() {
 	for(let i = 0 ; i < numOfNodes ; i++){
 		arr.push(parseInt(Math.random() * 200))
 	}
-	sv = new SortVisualiser(arr, r)
+	sv = new SortVisualiser(arr, r, myscreen)
 	await sv.createNodes()
 }
 
