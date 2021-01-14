@@ -45,7 +45,7 @@ class Myscreen{
 
 	reset() {
 		this.clearScreen()
-		this.ojects = []
+		this.objects = []
 	}
 	
 	render() {
@@ -67,7 +67,7 @@ class Myscreen{
 				this.updateObject(anim.id, anim.anim, t)
 			}
 			this.render()
-			await this._sleep(1)
+			await _sleep(1)
 		}
 	}
 }

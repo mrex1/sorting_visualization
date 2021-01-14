@@ -49,13 +49,13 @@ class SortVisualiser {
 		}
 		animation.push(
 			{
-				id: 'n' + idA,
+				id: idA,
 				anim: swapAnim
 			}
 		)
 		animation.push(
 			{
-				id: 'n' + idB,
+				id: idB,
 				anim: swapAnim
 			}
 		)
