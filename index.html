@@ -2,12 +2,20 @@
 <html>
 	<head></head>
 	<body>
-		<canvas height='1286' width='1500' style="height: 600px; width: 700px" id="screen"></canvas>
+		<canvas id="screen"></canvas>
 		<div>
-			<button onclick="genArr()">Generate Nodes</button>
-			<button onclick="quicksort()">Quicksort</button>
-			<button onclick="selectionSort()">Selection sort</button>
+			<button onclick="genGraph()">Generate Graph</button>
+			<input id="numOfVertices" oninput="getVerticesNum(this)" type="number" placeholder="Number of vertices"/>
+			<button onclick="quicksort()" class="sortBtn">Quicksort</button>
+			<button onclick="selectionSort()" class="sortBtn">Selection sort</button>
+			<button onclick="zoomIn()">Zoom in</button>
+			<button onclick="zoomOut()">Zoom out</button>
 		</div>
+		<script src="./node.js"></script>
+		<script src="./Edge.js"></script>
+		<script src="./Myscreen.js"></script>
+		<script src="./SortVisualiser.js"></script>
+		<script src="./graph.js"></script>
 		<script src="./index.js"></script>
 	</body>
 </html>
