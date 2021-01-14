@@ -35,7 +35,7 @@ function zoom(screen, ratio) {
     screen.render()
 }
 
-async function _quicksort() {
+async function genArr() {
 	myscreen.reset()
 	arr = []
 	for(let i = 0 ; i < numOfNodes ; i++){
@@ -43,17 +43,15 @@ async function _quicksort() {
 	}
 	sv = new SortVisualiser(arr, r, myscreen)
 	await sv.createNodes()
+}
+
+async function _quicksort() {
+	await genArr()
 	await sv.quickSort()
 }
 
 async function _selectionSort() {
-	myscreen.reset()
-	arr = []
-	for(let i = 0 ; i < numOfNodes ; i++){
-		arr.push(parseInt(Math.random() * 200))
-	}
-	sv = new SortVisualiser(arr, r, myscreen)
-	await sv.createNodes()
+	await genArr()
 	await sv.selectionSort()
 }
 
