@@ -6,8 +6,7 @@ class Myscreen{
 		this.canvas.setAttribute('style', `height: ${height}px; width: ${width}px`)
         this.zoom(zoomRatio)
         this.origin = origin
-		this.nodes = []
-		this.edges = []
+		this.objects = []
 	}
 
 	get center() {
@@ -28,82 +27,17 @@ class Myscreen{
 		this.canvas.width = width * ratio
 	}
 	
-	_sleep(t){
-		return new Promise( (res, rej) => {
-			setTimeout(res, t)
-		})
-	}
-	
-	_boomAnim({start, end, step}) {
-		return (t, currentState) => {
-			let {radius} = currentState
-			if (t === start) {
-				radius *= (t / end)
-			} else {
-				radius = radius * t / (t - step)
-			}
-			return {radius}
-		}
-	}
-	
-	_lightUpAnim(color){
-		const rgb = color.replace(/[rgba() ]/g, '').split(',')
-		return (t, currentState) => {
-			const color = `rgba(${rgb[0]* t/10}, ${rgb[1]* t/10}, ${rgb[2]* t/10}, ${rgb[3]* t/10})`
-			return { color }
-		}
-	}
-
-	_extend({start: startTime, endCoord, end: endTime}) {
-		return (t, currentState) => {
-			let {start, end} = currentState
-			if (t === startTime) {
-				end = start
-			} else {
-				const x = start.x + (endCoord.x - start.x) * t / endTime
-				const y = start.y + (endCoord.y - start.y) * t / endTime
-				end = {x, y}
-			}
-			return {end}
-		}
-	}
-	
-	async createNode(coord, text, radius){
-		this.nodes.push(new node(coord, text, radius))
-		const start = 1
-		const end = 10
-		const step = 1
+	async createObject(object, animation, {start, end, step}){
+		this.objects.push(object)
+		const id = this.objects.length - 1
 		const createAnim = [{
-			id: 'n' + (this.nodes.length - 1),
-			anim: this._boomAnim({start, end, step})
-		}]
-		await this.showAnimate(createAnim,{start, end, step})
-	}
-
-	async createEdge(startCoord, endCoord) {
-		this.edges.push(new Edge(startCoord, endCoord))
-		const start = 1
-		const end = 10
-		const step = 1
-		const createAnim = [{
-			id: 'e' + (this.edges.length - 1),
-			anim: this._extend({start, end, endCoord})
-		}]
-		await this.showAnimate(createAnim,{start, end, step})
-	}
-	
-	async lightUpNode(id, rgb) {
-		const lightUpAnim = [{
 			id,
-			anim: this._lightUpAnim(rgb)
+			anim: animation
 		}]
-		await this.showAnimate(lightUpAnim,{
-			start: 1,
-			end: 10,
-			step: 0.5
-		})
+		await this.showAnimate(createAnim, {start, end, step})
+		return id
 	}
-	
+
 	clearScreen() {
 		const ctx = this.canvas.getContext('2d')
 		ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
@@ -111,33 +45,19 @@ class Myscreen{
 
 	reset() {
 		this.clearScreen()
-		this.nodes = []
-		this.edges = []
+		this.ojects = []
 	}
 	
 	render() {
 		const ctx = this.canvas.getContext('2d')
 		this.clearScreen()
-		for(let e of this.edges){
-			e.render(ctx, this.origin)
-		}
-		for(let n of this.nodes){
-			n.render(ctx, this.origin)
+		for(let o of this.objects){
+			o.render(ctx, this.origin)
 		}
 	}
 	
 	updateObject(id, anim, t){
-		const type = id.substr(0, 1)
-		const index = id.substr(1)
-		switch (type) {
-			case 'n':
-				this.nodes[index].update(anim, t)
-				break
-			case 'e':
-				this.edges[index].update(anim, t)
-				break
-		} 
-		
+		this.objects[id].update(anim, t)
 	}
 	
 	async showAnimate(animCollection, timeFrame){

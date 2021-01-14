@@ -1,11 +1,12 @@
-class node{
-	constructor(coord, text, radius, lineWidth = 3){
+class node extends VisualizeObject {
+	constructor(coord, text, radius, lineWidth = 3) {
+		super()
 		this.text = text
 		this.coord = coord
 		this.strokeColor = 'black'
 		this.radius = radius - lineWidth
 		this.lineWidth = lineWidth
-		if(text < 100) {
+		if (text < 100) {
 			this.color = `rgba(0, 125, 255, ${(100 - text) / 100})`
 		} else {
 			text %= 100
@@ -13,15 +14,9 @@ class node{
 		}
 	}
 
-	processCoord(coord, origin) {
-        const x = coord.x + origin.x
-        const y = coord.y + origin.y
-        return {x, y}
-    }
-	
-	render(ctx, origin){
+	render(ctx, origin) {
 		ctx.beginPath()
-		const {x, y} = this.processCoord(this.coord, origin)
+		const { x, y } = this.processCoord(this.coord, origin)
 		ctx.fillStyle = this.color
 		ctx.lineWidth = this.lineWidth
 		ctx.arc(x, y, this.radius, 0, 2 * Math.PI)
@@ -32,14 +27,5 @@ class node{
 		ctx.textAlign = 'center'
 		ctx.textBaseline = 'middle'
 		ctx.fillText(this.text, x, y)
-	}
-	
-	update(anim, t){
-		const params = anim(t, this)
-		for (let param in params) {
-			if (params[param] && param in this) {
-				this[param] = params[param]
-			}
-		}
 	}
 }
