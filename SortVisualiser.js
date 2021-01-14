@@ -3,6 +3,7 @@ class SortVisualiser {
 		this.arr = arr
 		this.radius = radius
 		this.screen = screen
+		this.nodeIds = []
 	}
 
 	_rotate(t, coord, center) {
@@ -32,16 +33,14 @@ class SortVisualiser {
 		return {coord: {x, y}}
 	}
 
-	async _swap (idA, idB) {
-		let coordA = this.screen.nodes[idA].coord
-		let coordB = this.screen.nodes[idB].coord
+	async _swap (i, j) {
+		const idA = this.nodeIds[i]
+		const idB = this.nodeIds[j]
+		let coordA = this.screen.objects[idA].coord
+		let coordB = this.screen.objects[idB].coord
 		let center = {}
 		let animation = []
 		for (let dimension in coordA) {
-			if (!(dimension in coordB)) {
-				console.error('inconsistent dimensions of the given coordinates')
-				return
-			}
 			center[dimension] = (coordA[dimension] + coordB[dimension]) / 2
 		}
 		const swapAnim = (t, currentState) => {
@@ -50,13 +49,13 @@ class SortVisualiser {
 		}
 		animation.push(
 			{
-				id: 'n' + idA,
+				id: idA,
 				anim: swapAnim
 			}
 		)
 		animation.push(
 			{
-				id: 'n' + idB,
+				id: idB,
 				anim: swapAnim
 			}
 		)
@@ -65,12 +64,14 @@ class SortVisualiser {
 			end: 180,
 			step: 5
 		})
-		let temp = this.screen.nodes[idA]
-		this.screen.nodes[idA] = this.screen.nodes[idB]
-		this.screen.nodes[idB] = temp
+		let temp = this.screen.objects[idA]
+		this.screen.objects[idA] = this.screen.objects[idB]
+		this.screen.objects[idB] = temp
 	}
 
 	async _compare(i, j) {
+		const idA = this.nodeIds[i]
+		const idB = this.nodeIds[j]
 		let animation = []
 		const start = 1
 		const end = 10
@@ -94,18 +95,18 @@ class SortVisualiser {
 		}
 		animation.push(
 			{
-				id: 'n' + i,
+				id: idA,
 				anim: compareAnim({start, end, step})
 			}
 		)
 		animation.push(
 			{
-				id: 'n' + j,
+				id: idB,
 				anim: compareAnim({start, end, step})
 			}
 		)
 		await this.screen.showAnimate(animation, {start, end, step})
-		return this.screen.nodes[i].text > this.screen.nodes[j].text
+		return this.screen.objects[idA].text > this.screen.objects[idB].text
 	}
 		
 	async createNodes () {
@@ -117,7 +118,14 @@ class SortVisualiser {
 			let ele = arr[i]
 			let x = radius + 2 * i * radius + lineWidth * 2 * i + leftPadding
 			let y = 15 * radius
-			await this.screen.createNode({x ,y}, ele, radius)
+			const start = 1
+			const end = 10
+			const step = 1
+			const id = await this.screen.createObject(
+				new node({x ,y}, ele, radius),
+				_boomAnim({start, end, step}),
+				{start, end, step})
+			this.nodeIds.push(id)
 		}
 	}
 	

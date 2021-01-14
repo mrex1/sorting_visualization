@@ -39,7 +39,13 @@ async function drawUndirectedGraph(adjacency_list, screen, radius, edgeLength) {
     for (let i = 0 ; i < numOfVertices ; i++) {
         const coord = coords[i]
         const text = i + 1
-        await screen.createNode(coord, text, radius)
+        const start = 1
+        const end = 10
+        const step = 1
+        await screen.createObject(
+            new node(coord, text, radius),
+            _boomAnim({start, end, step}),
+            {start, end, step})
     }
     let edgeList = []
     for (let i = 0 ; i < numOfVertices ; i++) {
@@ -60,8 +66,13 @@ async function drawUndirectedGraph(adjacency_list, screen, radius, edgeLength) {
         }
     }
     for (let edge of edgeList) {
-        const start = coords[edge[0]]
-        const end = coords[edge[1]]
-        await screen.createEdge(start, end)
+        const startCoord = coords[edge[0]]
+        const endCoord = coords[edge[1]]
+        const start = 1
+        const end = 10
+        const step = 1
+        await screen.createObject(new Edge(startCoord, endCoord),
+            _extend({start, end, endCoord}),
+            {start, end ,step})
     }
 }
