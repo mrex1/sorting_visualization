@@ -1,40 +1,41 @@
-class Myscreen{
-	constructor(dimensions, zoomRatio, origin={x: 0, y: 0}){
+class Myscreen {
+	constructor(dimensions, zoomRatio, origin = { x: 0, y: 0 }) {
 		this.canvas = document.querySelector('canvas#screen')
 		this.dimensions = dimensions
-		const {height, width} = this.dimensions
+		const { height, width } = this.dimensions
 		this.canvas.setAttribute('style', `height: ${height}px; width: ${width}px`)
-        this.zoom(zoomRatio)
-        this.origin = origin
+		this.zoom(zoomRatio)
+		this.origin = origin
 		this.objects = []
 	}
 
 	get center() {
 		const y = this.canvas.height / 2
 		const x = this.canvas.width / 2
-		return {x, y}
+		return { x, y }
 	}
-    
-    shift(origin) {
-        this.origin = origin
-        this.render()
-    }
 
-	zoom (ratio) {
+	shift({ x, y }) {
+		this.origin.x += x
+		this.origin.y += y
+		this.render()
+	}
+
+	zoom(ratio) {
 		ratio = 1 / ratio
-		const {height, width} = this.dimensions
+		const { height, width } = this.dimensions
 		this.canvas.height = height * ratio
 		this.canvas.width = width * ratio
 	}
-	
-	async createObject(object, animation, {start, end, step}){
+
+	async createObject(object, animation, { start, end, step }) {
 		this.objects.push(object)
 		const id = this.objects.length - 1
 		const createAnim = [{
 			id,
 			anim: animation
 		}]
-		await this.showAnimate(createAnim, {start, end, step})
+		await this.showAnimate(createAnim, { start, end, step })
 		return id
 	}
 
@@ -45,25 +46,26 @@ class Myscreen{
 
 	reset() {
 		this.clearScreen()
+		this.origin = { x: 0, y: 0 }
 		this.objects = []
 	}
-	
+
 	render() {
 		const ctx = this.canvas.getContext('2d')
 		this.clearScreen()
-		for(let o of this.objects){
+		for (let o of this.objects) {
 			o.render(ctx, this.origin)
 		}
 	}
-	
-	updateObject(id, anim, t){
+
+	updateObject(id, anim, t) {
 		this.objects[id].update(anim, t)
 	}
-	
-	async showAnimate(animCollection, timeFrame){
-		const {start, end, step} = timeFrame
-		for(let t=start; t<=end; t+=step){
-			for(let anim of animCollection){
+
+	async showAnimate(animCollection, timeFrame) {
+		const { start, end, step } = timeFrame
+		for (let t = start; t <= end; t += step) {
+			for (let anim of animCollection) {
 				this.updateObject(anim.id, anim.anim, t)
 			}
 			this.render()

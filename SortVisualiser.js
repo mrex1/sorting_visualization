@@ -117,7 +117,7 @@ class SortVisualiser {
 		for (let i = 0 ; i < numOfNodes ; i++) {
 			let ele = arr[i]
 			let x = radius + 2 * i * radius + lineWidth * 2 * i + leftPadding
-			let y = 15 * radius
+			let y = this.screen.center.y
 			const start = 1
 			const end = 10
 			const step = 1
