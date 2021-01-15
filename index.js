@@ -28,8 +28,11 @@ function lock(f) {
 
 function zoom(screen, ratio) {
 	zoomRatio = ratio
-    screen.zoom(zoomRatio)
-    screen.render()
+	const oldCenter = screen.center
+	screen.zoom(zoomRatio)
+	const newCenter = screen.center
+	screen.shift({x: newCenter.x - oldCenter.x, y: newCenter.y - oldCenter.y})
+	screen.render()
 }
 
 async function genArr() {
