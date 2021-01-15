@@ -1,5 +1,7 @@
 let locked = false
-let zoomRatio = 0.5
+const minZoomRatio = 0.1
+let zoomRatio = 0.1
+const zoomUnit = 0.02
 const myscreen = new Myscreen({height: 500, width: 500}, zoomRatio)
 const r = 40
 const numOfNodes = 10
@@ -68,13 +70,14 @@ async function _genGraph() {
 }
 
 function _zoomIn() {
-	zoomRatio += 0.01
+	zoomRatio += zoomUnit
 	zoom(myscreen, zoomRatio)
 }
 
 function _zoomOut() {
-	if (zoomRatio == 0) return
-	zoomRatio -= 0.01
+	const newZoomRatio = zoomRatio - zoomUnit
+	if (newZoomRatio <= minZoomRatio) return
+	zoomRatio = newZoomRatio
 	zoom(myscreen, zoomRatio)
 }
 
