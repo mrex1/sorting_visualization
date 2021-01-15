@@ -1,6 +1,6 @@
 let locked = false
 const minZoomRatio = 0.1
-let zoomRatio = 0.1
+let zoomRatio = 0.4
 const zoomUnit = 0.02
 const myscreen = new Myscreen({height: 500, width: 500}, zoomRatio)
 const r = 40
